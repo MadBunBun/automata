@@ -1,0 +1,56 @@
+
+:root {
+  --primary: #2c3e50;
+  --bg-main: #fcfcfc;
+  --card-bg: #ffffff;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --radius: 12px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+}
+
+.dashboard { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
+
+.header { margin-bottom: 2rem; color: var(--primary); }
+.header h1 { font-size: 1.25rem; font-weight: 600; text-transform: uppercase; margin: 0; letter-spacing: 0.5px; }
+
+/* Menu Card Philosophy */
+.menu-container { display: flex; flex-wrap: wrap; gap: 1rem; }
+.menu-list { display: flex; flex-direction: row; gap: 1rem; width: 100%; }
+.menu-list button { 
+  flex: 1; padding: 2rem; border: 1px solid var(--border); border-radius: var(--radius); 
+  background: white; font-weight: 600; cursor: pointer; transition: 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  box-shadow: var(--shadow);
+}
+.menu-list button:hover { border-color: var(--primary); background: #f8fafc; }
+
+/* Sequence Panel Philosophy */
+.sequence-container { 
+  background: white; padding: 2rem; border-radius: var(--radius); 
+  border: 1px solid var(--border); box-shadow: var(--shadow); 
+}
+.back-btn { margin-bottom: 1.5rem; border: none; background: #f1f5f9; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; color: var(--text-muted); }
+.discussion { padding: 1.5rem; background: #f9fafb; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1.5rem; }
+
+/* Results */
+.scrollable-results {
+  background: white; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);
+  max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 1.1rem; color: var(--primary);
+}
+
+.image-placeholder {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  text-align: center;
+}
+.image-placeholder img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: var(--shadow); }
