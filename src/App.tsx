@@ -37,7 +37,7 @@ function App() {
             <button onClick={() => handleSelect('fibonacci')}>1) Fibonacci numbers</button>
             <button onClick={() => handleSelect('lucas')}>2) Lucas numbers</button>
             <button onClick={() => handleSelect('tribonacci')}>3) Tribonacci numbers</button>
-            <button className="exit-btn" onClick={() => alert('Closing application...')}>4) Exit</button>
+            <button className="exit-btn" onClick={() => window.close()}>4) Exit</button>
           </nav>
         </div>
       ) : config ? (
