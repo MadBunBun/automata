@@ -7,6 +7,56 @@ export interface SequenceResult {
   message: string;
 }
 
+export const checkPalindrome = (input: string) => {
+  const cleanInput = input.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  const reversed = cleanInput.split('').reverse().join('');
+  return {
+    isPalindrome: cleanInput === reversed && cleanInput.length > 0,
+    cleanInput,
+    reversed
+  };
+};
+
+export const runDivisionAlgorithm = (a: number, b: number) => {
+  const dividend = Math.max(a, b);
+  const divisor = Math.min(a, b);
+  const quotient = Math.floor(dividend / divisor);
+  const remainder = dividend % divisor;
+  return { dividend, divisor, quotient, remainder };
+};
+
+export const runEuclideanAlgorithm = (a: number, b: number) => {
+  let x = Math.max(a, b);
+  let y = Math.min(a, b);
+  const steps: { dividend: number, divisor: number, quotient: number, remainder: number }[] = [];
+
+  while (y !== 0) {
+    const q = Math.floor(x / y);
+    const r = x % y;
+    steps.push({ dividend: x, divisor: y, quotient: q, remainder: r });
+    x = y;
+    y = r;
+  }
+
+  const gcd = x;
+  const lcm = (a * b) / gcd;
+  return { steps, gcd, lcm };
+};
+
+export const generateCollatz = (n: number) => {
+  const sequence: number[] = [n];
+  let current = n;
+  while (current > 1 && sequence.length < 1000) {
+    if (current % 2 === 0) {
+      current = current / 2;
+    } else {
+      current = 3 * current + 1;
+    }
+    sequence.push(current);
+  }
+  return sequence;
+};
+
 export const generateSequence = (config: SequenceConfig, input: string): SequenceResult => {
   const termsCount = parseFloat(input);
   
