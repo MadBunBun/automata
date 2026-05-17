@@ -5,6 +5,8 @@ import type { ActivityType, ActivityConfig, SequenceConfig } from './types'
 import { SEQUENCES, CASE_STUDIES } from './constants/sequences'
 import { generateSequence, checkPalindrome, runDivisionAlgorithm, runEuclideanAlgorithm, generateCollatz } from './utils/math'
 
+const formatNumber = (num: number) => num.toLocaleString();
+
 const TypingText = ({ text }: { text: string }) => {
   const [displayedText, setDisplayedText] = useState('')
   
@@ -94,8 +96,39 @@ function App() {
     setView('activity')
   }
 
-  const renderResults = () => {
+  const warning = useMemo(() => {
     if (!selectedType) return null
+    if (!inputValue && !inputB) return null
+
+    if (selectedType in SEQUENCES) {
+      const res = generateSequence(SEQUENCES[selectedType] as SequenceConfig, inputValue)
+      return res.status !== 'Valid' && inputValue ? res.message : null
+    }
+
+    if (selectedType === 'division-algorithm' || selectedType === 'euclidean') {
+      const a = parseInt(inputValue)
+      const b = parseInt(inputB)
+      
+      if (inputValue && isNaN(a)) return 'First integer (a) must be a numeric value.'
+      if (inputB && isNaN(b)) return 'Second integer (b) must be a numeric value.'
+      
+      if (inputValue && !isNaN(a) && a <= 0) return 'First integer (a) must be a positive number (greater than 0).'
+      if (inputB && !isNaN(b) && b <= 0) return 'Second integer (b) must be a positive number (greater than 0).'
+      
+      return null
+    }
+
+    if (selectedType === 'collatz') {
+      const n = parseInt(inputValue)
+      if (inputValue && isNaN(n)) return 'Please enter a numeric integer.'
+      if (inputValue && !isNaN(n) && n <= 0) return 'Collatz sequence requires a positive integer.'
+    }
+
+    return null
+  }, [selectedType, inputValue, inputB])
+
+  const renderResults = () => {
+    if (!selectedType || warning) return null
 
     if (selectedType in SEQUENCES) {
       const res = generateSequence(SEQUENCES[selectedType] as SequenceConfig, inputValue)
@@ -104,40 +137,7 @@ function App() {
           <div className="results-list">
             <p>The {config?.name} are: </p>
             <div className="scrollable-results">
-              {res.terms.join(', ')}
-            </div>
-          </div>
-        )
-      }
-      return inputValue ? <p className="error-message">{res.message}</p> : null
-    }
-
-    if (selectedType === 'palindrome') {
-      const res = checkPalindrome(inputValue)
-      return inputValue ? (
-        <div className="palindrome-result">
-          <p>Cleaned: <strong>{res.cleanInput}</strong></p>
-          <p>Reversed: <strong>{res.reversed}</strong></p>
-          <p className={res.isPalindrome ? 'success' : 'error'}>
-            {res.isPalindrome ? '✅ It is a palindrome!' : '❌ Not a palindrome.'}
-          </p>
-        </div>
-      ) : null
-    }
-
-    if (selectedType === 'division-algorithm') {
-      const a = parseInt(inputValue)
-      const b = parseInt(inputB)
-      if (!isNaN(a) && !isNaN(b) && b !== 0) {
-        const res = runDivisionAlgorithm(a, b)
-        return (
-          <div className="division-results">
-            <p><strong>Solution:</strong></p>
-            <p className="formula-box">{res.dividend} = {res.divisor}({res.quotient}) + {res.remainder}</p>
-            <div className="details-box">
-              <p>The dividend is {res.dividend}</p>
-              <p>The divisor is {res.divisor}</p>
-              <p>The quotient is {res.quotient} and the remainder is {res.remainder}</p>
+              {res.terms.map(formatNumber).join(', ')}
             </div>
           </div>
         )
@@ -145,38 +145,72 @@ function App() {
       return null
     }
 
-    if (selectedType === 'euclidean') {
+    if (selectedType === 'palindrome') {
+      if (!inputValue.trim()) return null
+      const res = checkPalindrome(inputValue)
+      return (
+        <div className="palindrome-result">
+          <p>Cleaned: <strong>{res.cleanInput}</strong></p>
+          <p>Reversed: <strong>{res.reversed}</strong></p>
+          <p className={res.isPalindrome ? 'success' : 'error'}>
+            {res.isPalindrome ? '✅ VALID PALINDROME DETECTED' : '❌ NOT A PALINDROME'}
+          </p>
+        </div>
+      )
+    }
+
+    if (selectedType === 'division-algorithm' || selectedType === 'euclidean') {
       const a = parseInt(inputValue)
       const b = parseInt(inputB)
-      if (!isNaN(a) && !isNaN(b) && b !== 0) {
-        const res = runEuclideanAlgorithm(a, b)
-        return (
-          <div className="division-results">
-            <h3>Steps:</h3>
-            <ul className="steps-list">
-              {res.steps.map((s, i) => (
-                <li key={i}>{s.dividend} = {s.divisor}({s.quotient}) + {s.remainder}</li>
-              ))}
-            </ul>
-            <div className="summary-box">
-              <p><strong>GCD:</strong> {res.gcd}</p>
-              <p><strong>LCM:</strong> {res.lcm}</p>
+      
+      if (!isNaN(a) && !isNaN(b)) {
+        if (selectedType === 'division-algorithm') {
+          const res = runDivisionAlgorithm(a, b)
+          return (
+            <div className="division-results">
+              <p><strong>Solution:</strong></p>
+              <p className="formula-box">
+                {formatNumber(res.dividend)} = {formatNumber(res.divisor)}({formatNumber(res.quotient)}) + {formatNumber(res.remainder)}
+              </p>
+              <div className="details-box">
+                <p>The dividend is {formatNumber(res.dividend)}</p>
+                <p>The divisor is {formatNumber(res.divisor)}</p>
+                <p>The quotient is {formatNumber(res.quotient)} and the remainder is {formatNumber(res.remainder)}</p>
+              </div>
             </div>
-          </div>
-        )
+          )
+        } else {
+          const res = runEuclideanAlgorithm(a, b)
+          return (
+            <div className="division-results">
+              <h3>Iteration Steps:</h3>
+              <ul className="steps-list">
+                {res.steps.map((s, i) => (
+                  <li key={i}>
+                    {formatNumber(s.dividend)} = {formatNumber(s.divisor)}({formatNumber(s.quotient)}) + {formatNumber(s.remainder)}
+                  </li>
+                ))}
+              </ul>
+              <div className="summary-box">
+                <p><strong>GCD:</strong> {formatNumber(res.gcd)}</p>
+                <p><strong>LCM:</strong> {formatNumber(res.lcm)}</p>
+              </div>
+            </div>
+          )
+        }
       }
       return null
     }
 
     if (selectedType === 'collatz') {
       const n = parseInt(inputValue)
-      if (!isNaN(n) && n > 0) {
+      if (!isNaN(n)) {
         const seq = generateCollatz(n)
         return (
           <div className="results-list">
-            <p>The Collatz sequence for {n} is:</p>
+            <p>The Collatz sequence for {formatNumber(n)} is:</p>
             <div className="scrollable-results">
-              {seq.join(' → ')}
+              {seq.map(formatNumber).join(' → ')}
             </div>
           </div>
         )
@@ -191,7 +225,7 @@ function App() {
     <div className="dashboard">
       <MatrixRain />
       <header className="header">
-        <h1>Recursion & Algorithm Analyzer</h1>
+        <h1>Case Studies</h1>
       </header>
 
       {view === 'menu' ? (
@@ -208,7 +242,14 @@ function App() {
               <button onClick={() => handleSelect('tribonacci')}>Tribonacci Numbers</button>
             </div>
 
-            <button className="exit-btn" onClick={() => window.close()}>Exit System</button>
+            <button className="exit-btn" onClick={() => {
+              window.open('', '_self', ''); 
+              window.close();
+              // Fallback for browsers that block script-initiated closing
+              setTimeout(() => {
+                alert("SYSTEM SHUTDOWN INITIATED: Please close this tab manually to complete the process.");
+              }, 200);
+            }}>Exit System</button>
           </nav>
         </div>
       ) : config ? (
@@ -216,7 +257,7 @@ function App() {
           <button className="back-btn" onClick={() => setView('menu')}>← Back to Menu</button>
           <h2>{config.name}</h2>
           <div className="discussion">
-            {selectedType in SEQUENCES && (
+            {selectedType && selectedType in SEQUENCES && (
               <div className="image-placeholder">
                 <img 
                   src={`/${config.id}-discussion.png`} 
@@ -263,6 +304,12 @@ function App() {
               </div>
             )}
           </div>
+
+          {warning && (
+            <div className="warning-container">
+              <p className="error-message">⚠️ {warning}</p>
+            </div>
+          )}
 
           <div className="results-area">
             {renderResults()}
